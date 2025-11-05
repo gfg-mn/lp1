@@ -1,0 +1,38 @@
+import java.util.*;
+
+class Process {
+ int pid, burst, arrival, waiting, turnaround;
+ Process(int pid, int burst, int arrival) {
+  this.pid = pid;
+  this.burst = burst;
+  this.arrival = arrival;
+ }
+}
+
+public class FCFS {
+ public static void main(String[] args) {
+  Scanner sc = new Scanner(System.in);
+  System.out.print("Enter number of processes: ");
+  int n = sc.nextInt();
+  List<Process> list = new ArrayList<>();
+  for (int i = 0; i < n; i++) {
+   System.out.println("Enter arrival and burst time for process " + (i + 1) + ": ");
+   list.add(new Process(i + 1, sc.nextInt(), sc.nextInt()));
+  }
+  list.sort(Comparator.comparingInt(p -> p.arrival));
+  int time = 0, totalWait = 0, totalTurn = 0;
+  for (Process p : list) {
+   if (time < p.arrival) time = p.arrival;
+   p.waiting = time - p.arrival;
+   time += p.burst;
+   p.turnaround = p.waiting + p.burst;
+   totalWait += p.waiting;
+   totalTurn += p.turnaround;
+  }
+  System.out.println("PID\tArrival\tBurst\tWaiting\tTurnaround");
+  for (Process p : list)
+   System.out.println(p.pid + "\t" + p.arrival + "\t" + p.burst + "\t" + p.waiting + "\t" + p.turnaround);
+  System.out.printf("Average Waiting Time: %.2f\n", (float) totalWait / n);
+  System.out.printf("Average Turnaround Time: %.2f\n", (float) totalTurn / n);
+ }
+}

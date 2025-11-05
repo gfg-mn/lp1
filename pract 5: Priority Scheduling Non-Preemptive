@@ -1,0 +1,52 @@
+import java.util.*;
+
+class Process {
+ int pid, burst, arrival, priority, waiting, turnaround;
+ Process(int pid, int burst, int arrival, int priority) {
+  this.pid = pid;
+  this.burst = burst;
+  this.arrival = arrival;
+  this.priority = priority;
+ }
+}
+
+public class PriorityScheduling {
+ public static void main(String[] args) {
+  Scanner sc = new Scanner(System.in);
+  System.out.print("Enter number of processes: ");
+  int n = sc.nextInt();
+  List<Process> list = new ArrayList<>();
+  for (int i = 0; i < n; i++) {
+   System.out.println("Enter arrival, burst time, and priority for process " + (i + 1) + ": ");
+   list.add(new Process(i + 1, sc.nextInt(), sc.nextInt(), sc.nextInt()));
+  }
+  int time = 0, completed = 0, totalWait = 0, totalTurn = 0;
+  boolean[] done = new boolean[n];
+  while (completed < n) {
+   int idx = -1, high = Integer.MAX_VALUE;
+   for (int i = 0; i < n; i++) {
+    Process p = list.get(i);
+    if (p.arrival <= time && !done[i] && p.priority < high) {
+     high = p.priority;
+     idx = i;
+    }
+   }
+   if (idx == -1) time++;
+   else {
+    Process p = list.get(idx);
+    p.waiting = time - p.arrival;
+    time += p.burst;
+    p.turnaround = p.waiting + p.burst;
+    done[idx] = true;
+    completed++;
+    totalWait += p.waiting;
+    totalTurn += p.turnaround;
+   }
+  }
+  System.out.println("PID\tArrival\tBurst\tPriority\tWaiting\tTurnaround");
+  for (Process p : list)
+   System.out.println(p.pid + "\t" + p.arrival + "\t" + p.burst + "\t" + p.priority + "\t" + p.waiting + "\t" + p.turnaround);
+  System.out.printf("Average Waiting Time: %.2f\n", (float) totalWait / n);
+  System.out.printf("Average Turnaround Time: %.2f\n", (float) totalTurn / n);
+ }
+}

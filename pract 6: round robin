@@ -1,0 +1,65 @@
+import java.util.*;
+
+class Process {
+ int pid, burst, arrival, waiting, turnaround, remaining;
+ Process(int pid, int burst, int arrival) {
+  this.pid = pid;
+  this.burst = burst;
+  this.arrival = arrival;
+  this.remaining = burst;
+ }
+}
+
+public class RoundRobin {
+ public static void main(String[] args) {
+  Scanner sc = new Scanner(System.in);
+  System.out.print("Enter number of processes: ");
+  int n = sc.nextInt();
+  List<Process> list = new ArrayList<>();
+  for (int i = 0; i < n; i++) {
+   System.out.println("Enter arrival and burst time for process " + (i + 1) + ": ");
+   list.add(new Process(i + 1, sc.nextInt(), sc.nextInt()));
+  }
+  System.out.print("Enter Time Quantum: ");
+  int tq = sc.nextInt();
+  int time = 0, completed = 0, totalWait = 0, totalTurn = 0;
+  Queue<Process> q = new LinkedList<>();
+  boolean[] inQueue = new boolean[n];
+  list.sort(Comparator.comparingInt(p -> p.arrival));
+  int i = 0;
+  q.add(list.get(i));
+  inQueue[i] = true;
+  i++;
+  while (!q.isEmpty()) {
+   Process p = q.poll();
+   int exec = Math.min(p.remaining, tq);
+   p.remaining -= exec;
+   time += exec;
+   for (; i < n; i++) {
+    if (list.get(i).arrival <= time && !inQueue[i]) {
+     q.add(list.get(i));
+     inQueue[i] = true;
+    } else break;
+   }
+   if (p.remaining > 0) q.add(p);
+   else {
+    completed++;
+    p.turnaround = time - p.arrival;
+    p.waiting = p.turnaround - p.burst;
+    totalWait += p.waiting;
+    totalTurn += p.turnaround;
+   }
+   if (q.isEmpty() && completed < n && i < n) {
+    q.add(list.get(i));
+    inQueue[i] = true;
+    if (time < list.get(i).arrival) time = list.get(i).arrival;
+    i++;
+   }
+  }
+  System.out.println("PID\tArrival\tBurst\tWaiting\tTurnaround");
+  for (Process p : list)
+   System.out.println(p.pid + "\t" + p.arrival + "\t" + p.burst + "\t" + p.waiting + "\t" + p.turnaround);
+  System.out.printf("Average Waiting Time: %.2f\n", (float) totalWait / n);
+  System.out.printf("Average Turnaround Time: %.2f\n", (float) totalTurn / n);
+ }
+}
